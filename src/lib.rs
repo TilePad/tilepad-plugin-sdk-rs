@@ -32,6 +32,7 @@ pub struct TilepadPluginBuilder {
     connect_url: String,
     extensions: AnyMap,
     on_inspector_message: Option<Box<dyn OnInspectorMessage>>,
+    on_init: Option<Box<dyn OnInit>>,
     on_settings: Option<Box<dyn OnSettings>>,
     on_tile_clicked: Option<Box<dyn OnTileClicked>>,
 }
@@ -44,6 +45,7 @@ impl TilepadPluginBuilder {
             plugin_id,
             connect_url,
             extensions: Default::default(),
+            on_init: None,
             on_inspector_message: None,
             on_settings: None,
             on_tile_clicked: None,
@@ -55,25 +57,27 @@ impl TilepadPluginBuilder {
             plugin_id: self.plugin_id,
             connect_url: self.connect_url,
             extensions: self.extensions,
+            on_init: self.on_init,
             on_inspector_message: self.on_inspector_message,
             on_settings: self.on_settings,
             on_tile_clicked: self.on_tile_clicked,
         }
     }
 
-    pub fn add_extension<T: Send + Sync + 'static>(&mut self, val: T) -> Option<T> {
-        self.extensions
-            .insert(TypeId::of::<T>(), Box::new(val))
-            .and_then(|boxed| {
-                (boxed as Box<dyn Any + 'static>)
-                    .downcast()
-                    .ok()
-                    .map(|boxed| *boxed)
-            })
+    pub fn add_extension<T: Send + Sync + 'static>(&mut self, val: T) {
+        self.extensions.insert(TypeId::of::<T>(), Box::new(val));
     }
 
     pub fn extension<T: Send + Sync + 'static>(mut self, val: T) -> Self {
         self.add_extension(val);
+        self
+    }
+
+    pub fn on_init<H>(mut self, handler: H) -> Self
+    where
+        H: OnInit + 'static,
+    {
+        self.on_init = Some(Box::new(handler));
         self
     }
 
@@ -107,6 +111,7 @@ pub struct TilepadPlugin {
     connect_url: String,
     extensions: AnyMap,
 
+    on_init: Option<Box<dyn OnInit>>,
     on_inspector_message: Option<Box<dyn OnInspectorMessage>>,
     on_settings: Option<Box<dyn OnSettings>>,
     on_tile_clicked: Option<Box<dyn OnTileClicked>>,
@@ -119,13 +124,14 @@ impl TilepadPlugin {
         TilepadPluginBuilder::new(args.plugin_id, args.connect_url)
     }
 
-    pub fn extension<T>(&self) -> Option<&T>
+    pub fn extension<T>(&self) -> Option<T>
     where
         T: Clone + 'static,
     {
         self.extensions
             .get(&TypeId::of::<T>())
             .and_then(|boxed| (&**boxed as &(dyn Any + 'static)).downcast_ref())
+            .cloned()
     }
 
     /// Run the tilepad plugin
@@ -144,6 +150,14 @@ impl TilepadPlugin {
 async fn connect_socket(connect_url: &str) -> anyhow::Result<WebSocket> {
     let (socket, _response) = connect_async(connect_url.into_client_request()?).await?;
     Ok(socket)
+}
+
+pub trait OnInit: Send + Sync + 'static {
+    fn on_init(
+        &self,
+        plugin: Arc<TilepadPlugin>,
+        session: PluginSessionRef,
+    ) -> BoxFuture<'static, ()>;
 }
 
 pub trait OnSettings: Send + Sync + 'static {
@@ -206,6 +220,20 @@ where
         settings: serde_json::Value,
     ) -> BoxFuture<'static, ()> {
         Box::pin(self(plugin, session, settings))
+    }
+}
+
+impl<F, Fut> OnInit for F
+where
+    F: Fn(Arc<TilepadPlugin>, PluginSessionRef) -> Fut + Send + Sync + 'static,
+    Fut: Future<Output = ()> + Send + 'static,
+{
+    fn on_init(
+        &self,
+        plugin: Arc<TilepadPlugin>,
+        session: PluginSessionRef,
+    ) -> BoxFuture<'static, ()> {
+        Box::pin(self(plugin, session))
     }
 }
 

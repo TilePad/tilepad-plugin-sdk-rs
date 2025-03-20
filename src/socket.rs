@@ -56,6 +56,14 @@ impl PluginSession {
         Ok(())
     }
 
+    pub fn set_settings<T>(&self, msg: T) -> anyhow::Result<()>
+    where
+        T: Serialize,
+    {
+        let settings = serde_json::to_value(msg)?;
+        self.send_message(ClientPluginMessage::SetSettings { settings })
+    }
+
     pub fn send_to_inspector<T>(&self, ctx: PluginMessageContext, msg: T) -> anyhow::Result<()>
     where
         T: Serialize,
@@ -96,7 +104,9 @@ impl PluginSession {
                 }
             }
             ServerPluginMessage::Registered { plugin_id: _ } => {
-                //
+                if let Some(on_init) = &self.plugin.on_init {
+                    tokio::spawn(on_init.on_init(self.plugin.clone(), self.clone()));
+                }
             }
         }
     }
