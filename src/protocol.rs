@@ -10,7 +10,7 @@ pub type DeviceId = Uuid;
 pub type TileId = Uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct PluginMessageContext {
+pub struct InspectorContext {
     pub profile_id: ProfileId,
     pub folder_id: FolderId,
 
@@ -21,7 +21,7 @@ pub struct PluginMessageContext {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DeviceMessageContext {
+pub struct TileInteractionContext {
     pub device_id: DeviceId,
 
     pub plugin_id: PluginId,
@@ -31,7 +31,7 @@ pub struct DeviceMessageContext {
 }
 
 /// Plugin message coming from the client side
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 #[serde(tag = "type")]
 pub enum ClientPluginMessage {
     /// Register the current plugin with the server
@@ -46,14 +46,14 @@ pub enum ClientPluginMessage {
     /// Send data to the current inspector window
     SendToInspector {
         /// Inspector context
-        ctx: PluginMessageContext,
+        ctx: InspectorContext,
         /// Message to send the inspector
         message: serde_json::Value,
     },
 }
 
 /// Plugin message coming from the server side
-#[derive(Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(tag = "type")]
 pub enum ServerPluginMessage {
     /// Plugin has registered with the server
@@ -64,13 +64,13 @@ pub enum ServerPluginMessage {
 
     /// Tile was clicked on a remote device
     TileClicked {
-        ctx: DeviceMessageContext,
+        ctx: TileInteractionContext,
         properties: serde_json::Value,
     },
 
     /// Got a message from the inspector
     RecvFromInspector {
-        ctx: PluginMessageContext,
+        ctx: InspectorContext,
         message: serde_json::Value,
     },
 }
