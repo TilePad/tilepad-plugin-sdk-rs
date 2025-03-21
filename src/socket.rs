@@ -56,12 +56,17 @@ impl PluginSession {
         Ok(())
     }
 
-    pub fn set_settings<T>(&self, msg: T) -> anyhow::Result<()>
+    pub fn get_properties(&self) -> anyhow::Result<()> {
+        self.send_message(ClientPluginMessage::GetProperties {})?;
+        Ok(())
+    }
+
+    pub fn set_properties<T>(&self, msg: T) -> anyhow::Result<()>
     where
         T: Serialize,
     {
-        let settings = serde_json::to_value(msg)?;
-        self.send_message(ClientPluginMessage::SetSettings { settings })
+        let properties = serde_json::to_value(msg)?;
+        self.send_message(ClientPluginMessage::SetProperties { properties })
     }
 
     pub fn send_to_inspector<T>(&self, ctx: PluginMessageContext, msg: T) -> anyhow::Result<()>
@@ -74,12 +79,12 @@ impl PluginSession {
 
     pub fn handle_message(self: &Arc<Self>, message: ServerPluginMessage) {
         match message {
-            ServerPluginMessage::Settings { settings } => {
-                if let Some(on_settings) = &self.plugin.on_settings {
-                    tokio::spawn(on_settings.on_settings(
+            ServerPluginMessage::Properties { properties } => {
+                if let Some(on_properties) = &self.plugin.on_properties {
+                    tokio::spawn(on_properties.on_properties(
                         self.plugin.clone(),
                         self.clone(),
-                        settings,
+                        properties,
                     ));
                 }
             }
@@ -104,6 +109,9 @@ impl PluginSession {
                 }
             }
             ServerPluginMessage::Registered { plugin_id: _ } => {
+                // Request the current properties
+                _ = self.get_properties();
+
                 if let Some(on_init) = &self.plugin.on_init {
                     tokio::spawn(on_init.on_init(self.plugin.clone(), self.clone()));
                 }

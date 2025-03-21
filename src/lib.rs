@@ -33,7 +33,7 @@ pub struct TilepadPluginBuilder {
     extensions: AnyMap,
     on_inspector_message: Option<Box<dyn OnInspectorMessage>>,
     on_init: Option<Box<dyn OnInit>>,
-    on_settings: Option<Box<dyn OnSettings>>,
+    on_properties: Option<Box<dyn OnProperties>>,
     on_tile_clicked: Option<Box<dyn OnTileClicked>>,
 }
 
@@ -47,7 +47,7 @@ impl TilepadPluginBuilder {
             extensions: Default::default(),
             on_init: None,
             on_inspector_message: None,
-            on_settings: None,
+            on_properties: None,
             on_tile_clicked: None,
         }
     }
@@ -59,7 +59,7 @@ impl TilepadPluginBuilder {
             extensions: self.extensions,
             on_init: self.on_init,
             on_inspector_message: self.on_inspector_message,
-            on_settings: self.on_settings,
+            on_properties: self.on_properties,
             on_tile_clicked: self.on_tile_clicked,
         }
     }
@@ -81,11 +81,11 @@ impl TilepadPluginBuilder {
         self
     }
 
-    pub fn on_settings<H>(mut self, handler: H) -> Self
+    pub fn on_properties<H>(mut self, handler: H) -> Self
     where
-        H: OnSettings + 'static,
+        H: OnProperties + 'static,
     {
-        self.on_settings = Some(Box::new(handler));
+        self.on_properties = Some(Box::new(handler));
         self
     }
 
@@ -113,7 +113,7 @@ pub struct TilepadPlugin {
 
     on_init: Option<Box<dyn OnInit>>,
     on_inspector_message: Option<Box<dyn OnInspectorMessage>>,
-    on_settings: Option<Box<dyn OnSettings>>,
+    on_properties: Option<Box<dyn OnProperties>>,
     on_tile_clicked: Option<Box<dyn OnTileClicked>>,
 }
 
@@ -160,8 +160,8 @@ pub trait OnInit: Send + Sync + 'static {
     ) -> BoxFuture<'static, ()>;
 }
 
-pub trait OnSettings: Send + Sync + 'static {
-    fn on_settings(
+pub trait OnProperties: Send + Sync + 'static {
+    fn on_properties(
         &self,
         plugin: Arc<TilepadPlugin>,
         session: PluginSessionRef,
@@ -208,12 +208,12 @@ where
     }
 }
 
-impl<F, Fut> OnSettings for F
+impl<F, Fut> OnProperties for F
 where
     F: Fn(Arc<TilepadPlugin>, PluginSessionRef, serde_json::Value) -> Fut + Send + Sync + 'static,
     Fut: Future<Output = ()> + Send + 'static,
 {
-    fn on_settings(
+    fn on_properties(
         &self,
         plugin: Arc<TilepadPlugin>,
         session: PluginSessionRef,
