@@ -1,9 +1,6 @@
-use crate::{
-    inspector::Inspector,
-    protocol::{InspectorContext, TileInteractionContext},
-    session::PluginSessionHandle,
-};
+use crate::{inspector::Inspector, protocol::TileInteractionContext, session::PluginSessionHandle};
 
+#[allow(unused_variables)]
 pub trait Plugin {
     /// Invoked when the plugin is successfully registered with the
     /// Tilepad application and has a usable session
@@ -35,6 +32,20 @@ pub trait Plugin {
         message: serde_json::Value,
     ) {
     }
+
+    /// Invoked when the inspector is opened for a tile
+    ///
+    /// # Arguments
+    /// * `session` - The current session
+    /// * `ctx`     - Contextual information about the inspector (Which tile is selected, which folder, which profile etc)
+    fn on_inspector_open(&self, session: &PluginSessionHandle, inspector: Inspector) {}
+
+    /// Invoked when the inspector is closed for a tile
+    ///
+    /// # Arguments
+    /// * `session` - The current session
+    /// * `ctx`     - Contextual information about the inspector (Which tile is selected, which folder, which profile etc)
+    fn on_inspector_close(&self, session: &PluginSessionHandle, inspector: Inspector) {}
 
     /// Invoked when a tile is clicked on a device
     ///

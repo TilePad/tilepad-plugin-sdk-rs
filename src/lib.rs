@@ -97,6 +97,24 @@ where
                     message,
                 );
             }
+            ServerPluginMessage::InspectorOpen { ctx } => {
+                plugin.on_inspector_open(
+                    &handle,
+                    Inspector {
+                        ctx,
+                        session: handle.clone(),
+                    },
+                );
+            }
+            ServerPluginMessage::InspectorClose { ctx } => {
+                plugin.on_inspector_close(
+                    &handle,
+                    Inspector {
+                        ctx,
+                        session: handle.clone(),
+                    },
+                );
+            }
         }
     }
 }

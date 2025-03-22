@@ -73,4 +73,10 @@ pub enum ServerPluginMessage {
         ctx: InspectorContext,
         message: serde_json::Value,
     },
+
+    /// Inspector was opened
+    InspectorOpen { ctx: InspectorContext },
+
+    /// Inspector was closed
+    InspectorClose { ctx: InspectorContext },
 }
