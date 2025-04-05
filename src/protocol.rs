@@ -30,6 +30,15 @@ pub struct TileInteractionContext {
     pub tile_id: TileId,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DeepLinkContext {
+    pub url: String,
+    pub host: Option<String>,
+    pub path: String,
+    pub query: Option<String>,
+    pub fragment: Option<String>,
+}
+
 /// Plugin message coming from the client side
 #[derive(Debug, Serialize)]
 #[serde(tag = "type")]
@@ -82,4 +91,7 @@ pub enum ServerPluginMessage {
 
     /// Inspector was closed
     InspectorClose { ctx: InspectorContext },
+
+    /// Received a deep link message for the plugin
+    DeepLink { ctx: DeepLinkContext },
 }

@@ -115,6 +115,9 @@ where
                     },
                 );
             }
+            ServerPluginMessage::DeepLink { ctx } => {
+                plugin.on_deep_link(&handle, ctx);
+            }
         }
     }
 }

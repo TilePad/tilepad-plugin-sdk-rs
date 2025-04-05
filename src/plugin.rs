@@ -1,4 +1,8 @@
-use crate::{inspector::Inspector, protocol::TileInteractionContext, session::PluginSessionHandle};
+use crate::{
+    inspector::Inspector,
+    protocol::{DeepLinkContext, TileInteractionContext},
+    session::PluginSessionHandle,
+};
 
 #[allow(unused_variables)]
 pub trait Plugin {
@@ -46,6 +50,13 @@ pub trait Plugin {
     /// * `session` - The current session
     /// * `ctx`     - Contextual information about the inspector (Which tile is selected, which folder, which profile etc)
     fn on_inspector_close(&self, session: &PluginSessionHandle, inspector: Inspector) {}
+
+    /// Invoked when a deep link is received for the plugin
+    ///
+    /// # Arguments
+    /// * `session` - The current session
+    /// * `ctx`     - Information about the deep-link
+    fn on_deep_link(&self, session: &PluginSessionHandle, ctx: DeepLinkContext) {}
 
     /// Invoked when a tile is clicked on a device
     ///
