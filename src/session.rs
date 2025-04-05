@@ -120,7 +120,13 @@ impl Stream for PluginSessionRx {
 
             tracing::debug!(?msg, "received message from server");
 
-            let msg: ServerPluginMessage = serde_json::from_str(msg.as_str())?;
+            let msg: ServerPluginMessage = match serde_json::from_str(msg.as_str()) {
+                Ok(value) => value,
+                Err(cause) => {
+                    tracing::error!(?cause, "invalid or unknown message");
+                    continue;
+                }
+            };
 
             return Poll::Ready(Some(Ok(msg)));
         }
