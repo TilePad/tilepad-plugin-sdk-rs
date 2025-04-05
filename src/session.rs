@@ -71,6 +71,10 @@ impl PluginSessionHandle {
         let message = serde_json::to_value(msg)?;
         self.send_message(ClientPluginMessage::SendToInspector { ctx, message })
     }
+
+    pub fn open_url(&self, url: String) -> Result<(), SessionError> {
+        self.send_message(ClientPluginMessage::OpenUrl { url })
+    }
 }
 
 pub(crate) struct PluginSessionRx {
