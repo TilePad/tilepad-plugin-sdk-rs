@@ -84,6 +84,10 @@ impl PluginSessionHandle {
         Ok(msg)
     }
 
+    /// Sets the properties for the plugin
+    ///
+    /// This performs a partial update only updating
+    /// the serialized properties leaving existing ones
     pub fn set_properties<T>(&self, msg: T) -> Result<(), SessionError>
     where
         T: Serialize,
@@ -92,6 +96,8 @@ impl PluginSessionHandle {
         self.send_message(ClientPluginMessage::SetProperties { properties })
     }
 
+    /// Sends a message to the plugin inspector UI at the provided
+    /// inspector context
     pub fn send_to_inspector<T>(&self, ctx: InspectorContext, msg: T) -> Result<(), SessionError>
     where
         T: Serialize,
@@ -100,6 +106,8 @@ impl PluginSessionHandle {
         self.send_message(ClientPluginMessage::SendToInspector { ctx, message })
     }
 
+    /// Tells tilepad to open the provided `url` in the
+    /// default browser
     pub fn open_url(&self, url: String) -> Result<(), SessionError> {
         self.send_message(ClientPluginMessage::OpenUrl { url })
     }

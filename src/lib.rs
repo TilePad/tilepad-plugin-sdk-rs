@@ -10,6 +10,7 @@ use tokio_tungstenite::{connect_async, tungstenite::client::IntoClientRequest};
 
 use ws::WebSocketFuture;
 
+// Provide tracing modules to the implementor
 pub use tracing;
 pub use tracing_subscriber;
 
@@ -17,8 +18,8 @@ pub mod inspector;
 pub mod plugin;
 pub mod protocol;
 pub mod session;
-pub mod subscription;
-pub mod ws;
+mod subscription;
+mod ws;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]

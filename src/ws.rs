@@ -9,6 +9,7 @@ use tokio_tungstenite::{
     MaybeTlsStream, WebSocketStream,
     tungstenite::{self, Message as TWsMessage},
 };
+
 pub type WebSocket = WebSocketStream<MaybeTlsStream<TcpStream>>;
 
 pub struct WebSocketFuture {

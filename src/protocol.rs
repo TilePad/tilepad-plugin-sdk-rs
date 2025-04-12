@@ -42,7 +42,7 @@ pub struct DeepLinkContext {
 /// Plugin message coming from the client side
 #[derive(Debug, Serialize)]
 #[serde(tag = "type")]
-pub enum ClientPluginMessage {
+pub(crate) enum ClientPluginMessage {
     /// Register the current plugin with the server
     RegisterPlugin { plugin_id: PluginId },
 
@@ -67,9 +67,12 @@ pub enum ClientPluginMessage {
 /// Plugin message coming from the server side
 #[derive(Debug, Clone, Deserialize)]
 #[serde(tag = "type")]
-pub enum ServerPluginMessage {
+pub(crate) enum ServerPluginMessage {
     /// Plugin has registered with the server
-    Registered { plugin_id: PluginId },
+    Registered {
+        #[allow(unused)]
+        plugin_id: PluginId,
+    },
 
     /// Properties received from the server
     Properties { properties: serde_json::Value },

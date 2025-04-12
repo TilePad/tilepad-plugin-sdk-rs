@@ -5,13 +5,18 @@ use crate::{
     session::{PluginSessionHandle, SessionError},
 };
 
+/// Reference to an inspector window that can be
+/// used to send messages
 #[derive(Clone)]
 pub struct Inspector {
+    /// Plugin session handle the inspector is connected through
     pub session: PluginSessionHandle,
+    /// Context data for the inspector
     pub ctx: InspectorContext,
 }
 
 impl Inspector {
+    /// Send a JSON serializable message `msg` to the inspector window
     pub fn send<M>(&self, msg: M) -> Result<(), SessionError>
     where
         M: Serialize,

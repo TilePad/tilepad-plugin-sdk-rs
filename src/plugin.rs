@@ -4,6 +4,7 @@ use crate::{
     session::PluginSessionHandle,
 };
 
+/// Trait implemented by your plugin
 #[allow(unused_variables)]
 pub trait Plugin {
     /// Invoked when the plugin is successfully registered with the
