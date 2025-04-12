@@ -65,7 +65,7 @@ pub enum ClientPluginMessage {
 }
 
 /// Plugin message coming from the server side
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(tag = "type")]
 pub enum ServerPluginMessage {
     /// Plugin has registered with the server

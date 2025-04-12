@@ -778,6 +778,7 @@ dependencies = [
  "anyhow",
  "clap",
  "futures",
+ "parking_lot",
  "serde",
  "serde_json",
  "thiserror",

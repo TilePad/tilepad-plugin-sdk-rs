@@ -25,3 +25,4 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 clap = { version = "4", features = ["derive"] }
 tokio-tungstenite = "0.26.2"
 uuid = { version = "1.16.0", features = ["serde", "v4"] }
+parking_lot = "0.12.3"

@@ -4,6 +4,7 @@ use inspector::Inspector;
 use plugin::Plugin;
 use protocol::ServerPluginMessage;
 use session::{PluginSessionHandle, PluginSessionRx};
+use subscription::Subscriptions;
 use tokio::spawn;
 use tokio_tungstenite::{connect_async, tungstenite::client::IntoClientRequest};
 
@@ -16,6 +17,7 @@ pub mod inspector;
 pub mod plugin;
 pub mod protocol;
 pub mod session;
+pub mod subscription;
 pub mod ws;
 
 #[derive(Parser, Debug)]
@@ -54,8 +56,11 @@ where
         }
     });
 
+    // Create message subscriptions store
+    let subscriptions = Subscriptions::default();
+
     // Wrap the websocket handle with the custom protocol
-    let handle = PluginSessionHandle::new(ws_tx);
+    let handle = PluginSessionHandle::new(ws_tx, subscriptions.clone());
 
     // Send registration message
     handle
@@ -73,10 +78,13 @@ where
             }
         };
 
+        // Handle subscriptions
+        subscriptions.apply(&msg);
+
         match msg {
             ServerPluginMessage::Registered { .. } => {
                 handle
-                    .get_properties()
+                    .request_properties()
                     .expect("failed to request initial properties");
 
                 plugin.on_registered(&handle);

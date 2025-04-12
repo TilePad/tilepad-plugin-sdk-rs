@@ -3,9 +3,11 @@ use std::task::{Poll, ready};
 use futures::Stream;
 use serde::Serialize;
 use thiserror::Error;
+use tokio::sync::oneshot;
 
 use crate::{
     protocol::{ClientPluginMessage, InspectorContext, PluginId, ServerPluginMessage},
+    subscription::{Subscriber, Subscriptions},
     ws::{WsMessage, WsRx, WsTx},
 };
 
@@ -29,15 +31,17 @@ pub enum SessionError {
 #[derive(Clone)]
 pub struct PluginSessionHandle {
     tx: WsTx,
+    subscriptions: Subscriptions,
 }
 
 impl PluginSessionHandle {
-    pub(crate) fn new(tx: WsTx) -> Self {
-        Self { tx }
+    pub(crate) fn new(tx: WsTx, subscriptions: Subscriptions) -> Self {
+        Self { tx, subscriptions }
     }
 }
 
 impl PluginSessionHandle {
+    /// Sends a message over the plugin websocket
     pub(crate) fn send_message(&self, msg: ClientPluginMessage) -> Result<(), SessionError> {
         let msg = serde_json::to_string(&msg)?;
         let message = WsMessage::text(msg);
@@ -46,14 +50,38 @@ impl PluginSessionHandle {
         Ok(())
     }
 
+    /// Registers the plugin with the plugin server
     pub(crate) fn register(&self, plugin_id: PluginId) -> Result<(), SessionError> {
         self.send_message(ClientPluginMessage::RegisterPlugin { plugin_id })?;
         Ok(())
     }
 
-    pub fn get_properties(&self) -> Result<(), SessionError> {
+    /// Requests the current plugin properties from the server
+    pub fn request_properties(&self) -> Result<(), SessionError> {
         self.send_message(ClientPluginMessage::GetProperties {})?;
         Ok(())
+    }
+
+    /// Requests the current properties from tilepad waiting until
+    /// the response is retrieved and returns that
+    pub async fn get_properties(&self) -> Result<serde_json::Value, SessionError> {
+        let (tx, rx) = oneshot::channel();
+
+        self.subscriptions.add(Subscriber::new(
+            |msg| matches!(msg, ServerPluginMessage::Properties { .. }),
+            tx,
+        ));
+
+        self.request_properties()?;
+
+        // Wait for the response message
+        let msg = rx.await.map_err(|_| SessionError::Closed)?;
+        let msg = match msg {
+            ServerPluginMessage::Properties { properties } => properties,
+            _ => return Err(SessionError::UnexpectedMessage),
+        };
+
+        Ok(msg)
     }
 
     pub fn set_properties<T>(&self, msg: T) -> Result<(), SessionError>
