@@ -127,6 +127,10 @@ where
             ServerPluginMessage::DeepLink { ctx } => {
                 plugin.on_deep_link(&handle, ctx);
             }
+            ServerPluginMessage::TileProperties {
+                tile_id,
+                properties,
+            } => {}
         }
     }
 }

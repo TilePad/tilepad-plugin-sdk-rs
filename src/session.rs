@@ -6,7 +6,7 @@ use thiserror::Error;
 use tokio::sync::oneshot;
 
 use crate::{
-    protocol::{ClientPluginMessage, InspectorContext, PluginId, ServerPluginMessage},
+    protocol::{ClientPluginMessage, InspectorContext, PluginId, ServerPluginMessage, TileId},
     subscription::{Subscriber, Subscriptions},
     ws::{WsMessage, WsRx, WsTx},
 };
@@ -113,6 +113,88 @@ impl PluginSessionHandle {
     {
         let properties = serde_json::to_value(properties)?;
         self.send_message(ClientPluginMessage::SetProperties {
+            properties,
+            partial: true,
+        })
+    }
+
+    /// Requests the specified tile properties from the server
+    pub fn request_tile_properties(&self, tile_id: TileId) -> Result<(), SessionError> {
+        self.send_message(ClientPluginMessage::GetTileProperties { tile_id })?;
+        Ok(())
+    }
+
+    /// Requests the current properties for a tile from tilepad waiting until
+    /// the response is retrieved and returns that
+    pub async fn get_tile_properties(
+        &self,
+        tile_id: TileId,
+    ) -> Result<serde_json::Value, SessionError> {
+        let (tx, rx) = oneshot::channel();
+
+        self.subscriptions.add(Subscriber::new(
+            move |msg| match msg {
+                ServerPluginMessage::TileProperties {
+                    tile_id: other_id, ..
+                } => other_id.eq(&tile_id),
+                _ => false,
+            },
+            tx,
+        ));
+
+        self.request_tile_properties(tile_id)?;
+
+        // Wait for the response message
+        let msg = rx.await.map_err(|_| SessionError::Closed)?;
+        let msg = match msg {
+            ServerPluginMessage::TileProperties { properties, .. } => properties,
+            _ => return Err(SessionError::UnexpectedMessage),
+        };
+
+        Ok(msg)
+    }
+
+    /// Sets the properties for the specified tile
+    ///
+    /// You can only update tiles that are using an action
+    /// from your plugin
+    ///
+    /// This replaces the stored properties object with the
+    /// provided `properties`.
+    ///
+    /// Use [PluginSessionHandle::set_tile_properties_partial] to perform a partial update
+    pub fn set_tile_properties<T>(&self, tile_id: TileId, properties: T) -> Result<(), SessionError>
+    where
+        T: Serialize,
+    {
+        let properties = serde_json::to_value(properties)?;
+        self.send_message(ClientPluginMessage::SetTileProperties {
+            tile_id,
+            properties,
+            partial: false,
+        })
+    }
+
+    /// Sets the properties for the specified tile
+    ///
+    /// You can only update tiles that are using an action
+    /// from your plugin
+    ///
+    /// This performs a partial update, merging the existing
+    /// plugin properties with the specified `properties`
+    ///
+    /// Use [PluginSessionHandle::set_tile_properties] to replace the properties completely
+    pub fn set_tile_properties_partial<T>(
+        &self,
+        tile_id: TileId,
+        properties: T,
+    ) -> Result<(), SessionError>
+    where
+        T: Serialize,
+    {
+        let properties = serde_json::to_value(properties)?;
+        self.send_message(ClientPluginMessage::SetTileProperties {
+            tile_id,
             properties,
             partial: true,
         })

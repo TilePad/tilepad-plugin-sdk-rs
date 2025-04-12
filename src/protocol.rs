@@ -67,6 +67,22 @@ pub(crate) enum ClientPluginMessage {
 
     /// Open a URL
     OpenUrl { url: String },
+
+    /// Request the current properties for a tile
+    GetTileProperties {
+        /// ID of the tile to get properties for
+        tile_id: TileId,
+    },
+
+    /// Set the current properties for a tile
+    SetTileProperties {
+        /// ID of the tile to set properties for
+        tile_id: TileId,
+        /// Properties for the tile
+        properties: serde_json::Value,
+        /// Whether to treat the properties update as a partial update
+        partial: bool,
+    },
 }
 
 /// Plugin message coming from the server side
@@ -102,4 +118,10 @@ pub(crate) enum ServerPluginMessage {
 
     /// Received a deep link message for the plugin
     DeepLink { ctx: DeepLinkContext },
+
+    /// Properties requested for a tile
+    TileProperties {
+        tile_id: TileId,
+        properties: serde_json::Value,
+    },
 }

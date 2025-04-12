@@ -1,6 +1,6 @@
 use crate::{
     inspector::Inspector,
-    protocol::{DeepLinkContext, TileInteractionContext},
+    protocol::{DeepLinkContext, TileId, TileInteractionContext},
     session::PluginSessionHandle,
 };
 
@@ -15,13 +15,28 @@ pub trait Plugin {
     fn on_registered(&self, session: &PluginSessionHandle) {}
 
     /// Invoked when the plugin properties are received from Tilepad,
-    /// this will occur when the plugin calls `session.get_properties`
+    /// this will occur when the plugin calls `session.request_properties` or `session.get_properties`
     /// but also once when the plugin is first registered
     ///
     /// # Arguments
     /// * `session` - The current session
     /// * `properties` - The current plugin properties
     fn on_properties(&self, session: &PluginSessionHandle, properties: serde_json::Value) {}
+
+    /// Invoked when a tiles properties are received from Tilepad,
+    /// this will occur when the plugin calls `session.request_tile_properties` or `session.get_tile_properties`
+    ///
+    /// # Arguments
+    /// * `session` - The current session
+    /// * `tile_id` - ID of the tile that the properties are for
+    /// * `properties` - The current plugin properties
+    fn on_tile_properties(
+        &self,
+        session: &PluginSessionHandle,
+        tile_id: TileId,
+        properties: serde_json::Value,
+    ) {
+    }
 
     /// Invoked when the plugin receives a message from the inspector,
     /// this message structure is defined by the developer   
