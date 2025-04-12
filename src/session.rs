@@ -86,14 +86,36 @@ impl PluginSessionHandle {
 
     /// Sets the properties for the plugin
     ///
-    /// This performs a partial update only updating
-    /// the serialized properties leaving existing ones
-    pub fn set_properties<T>(&self, msg: T) -> Result<(), SessionError>
+    /// This replaces the stored properties object with the
+    /// provided `properties`.
+    ///
+    /// Use [PluginSessionHandle::set_properties_partial] to perform a partial update
+    pub fn set_properties<T>(&self, properties: T) -> Result<(), SessionError>
     where
         T: Serialize,
     {
-        let properties = serde_json::to_value(msg)?;
-        self.send_message(ClientPluginMessage::SetProperties { properties })
+        let properties = serde_json::to_value(properties)?;
+        self.send_message(ClientPluginMessage::SetProperties {
+            properties,
+            partial: false,
+        })
+    }
+
+    /// Sets the properties for the plugin
+    ///
+    /// This performs a partial update, merging the existing
+    /// plugin properties with the specified `properties`
+    ///
+    /// Use [PluginSessionHandle::set_properties] to replace the properties completely
+    pub fn set_properties_partial<T>(&self, properties: T) -> Result<(), SessionError>
+    where
+        T: Serialize,
+    {
+        let properties = serde_json::to_value(properties)?;
+        self.send_message(ClientPluginMessage::SetProperties {
+            properties,
+            partial: true,
+        })
     }
 
     /// Sends a message to the plugin inspector UI at the provided

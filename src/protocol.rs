@@ -50,7 +50,12 @@ pub(crate) enum ClientPluginMessage {
     GetProperties,
 
     /// Set the properties for the plugin (Partial update)
-    SetProperties { properties: serde_json::Value },
+    SetProperties {
+        properties: serde_json::Value,
+
+        /// Whether to treat the properties update as a partial update
+        partial: bool,
+    },
 
     /// Send data to the current inspector window
     SendToInspector {
