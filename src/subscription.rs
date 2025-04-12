@@ -28,6 +28,10 @@ impl Subscriptions {
             true
         });
     }
+
+    pub fn clear(&self) {
+        self.subscribers.lock().clear();
+    }
 }
 
 pub(crate) struct Subscriber {

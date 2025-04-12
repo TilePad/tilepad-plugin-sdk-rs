@@ -130,7 +130,11 @@ where
             ServerPluginMessage::TileProperties {
                 tile_id,
                 properties,
-            } => {}
+            } => {
+                plugin.on_tile_properties(&handle, tile_id, properties);
+            }
         }
     }
+
+    subscriptions.clear();
 }
