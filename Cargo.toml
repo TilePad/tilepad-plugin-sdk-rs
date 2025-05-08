@@ -10,12 +10,11 @@ description = "Plugin SDK for writing Tilepad plugins"
 
 [dependencies]
 # Async 
-tokio = { version = "1", features = ["full"] }
-tokio-util = { version = "0.7", features = ["full"] }
+tokio = { version = "1", features = ["rt", "net", "sync"] }
 futures-util = "0.3"
 
 # Websocket
-tokio-tungstenite = "0.26.2"
+tokio-tungstenite = "0.26"
 
 # Serialization
 serde = { version = "1", features = ["derive"] }
@@ -23,7 +22,6 @@ serde_json = "1"
 
 # Errors
 thiserror = "2"
-anyhow = "1"
 
 # Logging 
 tracing = { version = "0.1", features = ["log"] }
