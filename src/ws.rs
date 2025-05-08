@@ -1,4 +1,4 @@
-use futures::{SinkExt, StreamExt};
+use futures_util::{SinkExt, StreamExt};
 use std::{
     future::Future,
     pin::Pin,

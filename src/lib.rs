@@ -1,5 +1,5 @@
 use clap::Parser;
-use futures::StreamExt;
+use futures_util::StreamExt;
 use inspector::Inspector;
 use plugin::Plugin;
 use protocol::ServerPluginMessage;

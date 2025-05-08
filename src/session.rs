@@ -1,6 +1,6 @@
 use std::task::{Poll, ready};
 
-use futures::Stream;
+use futures_util::Stream;
 use serde::Serialize;
 use thiserror::Error;
 use tokio::sync::oneshot;
