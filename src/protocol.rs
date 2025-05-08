@@ -66,49 +66,25 @@ pub enum TileIcon {
     Url {
         src: String,
     },
-
-    /// User uploaded file
-    Uploaded {
-        /// Path to the uploaded file
-        path: String,
-    },
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
 pub struct TileLabel {
-    pub enabled: bool,
-    pub label: String,
-    pub align: LabelAlign,
+    pub enabled: Option<bool>,
+    pub label: Option<String>,
+    pub align: Option<LabelAlign>,
 
-    pub font: String,
-    pub font_size: u32,
+    pub font: Option<String>,
+    pub font_size: Option<u32>,
 
-    pub bold: bool,
-    pub italic: bool,
-    pub underline: bool,
-    pub outline: bool,
+    pub bold: Option<bool>,
+    pub italic: Option<bool>,
+    pub underline: Option<bool>,
+    pub outline: Option<bool>,
 
-    pub color: String,
-    pub outline_color: String,
-}
-
-impl Default for TileLabel {
-    fn default() -> Self {
-        Self {
-            enabled: true,
-            label: Default::default(),
-            align: Default::default(),
-            font: "Roboto".to_string(),
-            font_size: 10,
-            bold: false,
-            italic: false,
-            underline: false,
-            outline: true,
-            color: "#ffffff".to_string(),
-            outline_color: "#000000".to_string(),
-        }
-    }
+    pub color: Option<String>,
+    pub outline_color: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
