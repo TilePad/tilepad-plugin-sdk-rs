@@ -12,7 +12,7 @@ pub trait Plugin {
     ///
     /// # Arguments
     /// * `session` - The current session
-    fn on_registered(&self, session: &PluginSessionHandle) {}
+    fn on_registered(&mut self, session: &PluginSessionHandle) {}
 
     /// Invoked when the plugin properties are received from Tilepad,
     /// this will occur when the plugin calls `session.request_properties` or `session.get_properties`
@@ -21,7 +21,7 @@ pub trait Plugin {
     /// # Arguments
     /// * `session` - The current session
     /// * `properties` - The current plugin properties
-    fn on_properties(&self, session: &PluginSessionHandle, properties: serde_json::Value) {}
+    fn on_properties(&mut self, session: &PluginSessionHandle, properties: serde_json::Value) {}
 
     /// Invoked when a tiles properties are received from Tilepad,
     /// this will occur when the plugin calls `session.request_tile_properties` or `session.get_tile_properties`
@@ -31,7 +31,7 @@ pub trait Plugin {
     /// * `tile_id` - ID of the tile that the properties are for
     /// * `properties` - The current plugin properties
     fn on_tile_properties(
-        &self,
+        &mut self,
         session: &PluginSessionHandle,
         tile_id: TileId,
         properties: serde_json::Value,
@@ -46,7 +46,7 @@ pub trait Plugin {
     /// * `ctx`     - Contextual information about the inspector (Which tile is selected, which folder, which profile etc)
     /// * `message` - The message sent from the inspector
     fn on_inspector_message(
-        &self,
+        &mut self,
         session: &PluginSessionHandle,
         inspector: Inspector,
         message: serde_json::Value,
@@ -58,21 +58,21 @@ pub trait Plugin {
     /// # Arguments
     /// * `session` - The current session
     /// * `ctx`     - Contextual information about the inspector (Which tile is selected, which folder, which profile etc)
-    fn on_inspector_open(&self, session: &PluginSessionHandle, inspector: Inspector) {}
+    fn on_inspector_open(&mut self, session: &PluginSessionHandle, inspector: Inspector) {}
 
     /// Invoked when the inspector is closed for a tile
     ///
     /// # Arguments
     /// * `session` - The current session
     /// * `ctx`     - Contextual information about the inspector (Which tile is selected, which folder, which profile etc)
-    fn on_inspector_close(&self, session: &PluginSessionHandle, inspector: Inspector) {}
+    fn on_inspector_close(&mut self, session: &PluginSessionHandle, inspector: Inspector) {}
 
     /// Invoked when a deep link is received for the plugin
     ///
     /// # Arguments
     /// * `session` - The current session
     /// * `ctx`     - Information about the deep-link
-    fn on_deep_link(&self, session: &PluginSessionHandle, ctx: DeepLinkContext) {}
+    fn on_deep_link(&mut self, session: &PluginSessionHandle, ctx: DeepLinkContext) {}
 
     /// Invoked when a tile is clicked on a device
     ///
@@ -81,7 +81,7 @@ pub trait Plugin {
     /// * `ctx`        - Contextual information about tile clicked tile (Device, action, etc)
     /// * `properties` - The current tile properties at the time of clicking
     fn on_tile_clicked(
-        &self,
+        &mut self,
         session: &PluginSessionHandle,
         ctx: TileInteractionContext,
         properties: serde_json::Value,

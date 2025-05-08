@@ -81,7 +81,7 @@ async fn run_websocket(ws_future: WebSocketFuture) {
 
 /// Handle all incoming messages from the websocket
 async fn run_handler<P>(
-    plugin: P,
+    mut plugin: P,
     handle: PluginSessionHandle,
     subscriptions: Subscriptions,
     mut msg_rx: PluginSessionRx,
