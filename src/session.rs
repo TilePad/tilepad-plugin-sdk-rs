@@ -6,7 +6,10 @@ use thiserror::Error;
 use tokio::sync::oneshot;
 
 use crate::{
-    protocol::{ClientPluginMessage, InspectorContext, PluginId, ServerPluginMessage, TileId},
+    protocol::{
+        ClientPluginMessage, InspectorContext, PluginId, ServerPluginMessage, TileIcon, TileId,
+        TileLabel,
+    },
     subscription::{Subscriber, Subscriptions},
     ws::{WsMessage, WsRx, WsTx},
 };
@@ -198,6 +201,22 @@ impl PluginSessionHandle {
             properties,
             partial: true,
         })
+    }
+
+    /// Sets the icon for a specific tile
+    ///
+    /// You can only update tiles that are using an action
+    /// from your plugin
+    pub fn set_tile_icon(&self, tile_id: TileId, icon: TileIcon) -> Result<(), SessionError> {
+        self.send_message(ClientPluginMessage::SetTileIcon { tile_id, icon })
+    }
+
+    /// Sets the label for a specific tile
+    ///
+    /// You can only update tiles that are using an action
+    /// from your plugin
+    pub fn set_tile_label(&self, tile_id: TileId, label: TileLabel) -> Result<(), SessionError> {
+        self.send_message(ClientPluginMessage::SetTileLabel { tile_id, label })
     }
 
     /// Sends a message to the plugin inspector UI at the provided

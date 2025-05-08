@@ -39,6 +39,86 @@ pub struct DeepLinkContext {
     pub fragment: Option<String>,
 }
 
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(tag = "type")]
+pub enum TileIcon {
+    /// No icon
+    #[default]
+    None,
+
+    /// Icon from a specific plugin path
+    PluginIcon {
+        /// ID of the plugin the icon is from
+        plugin_id: PluginId,
+        /// Path to the icon file
+        icon: String,
+    },
+
+    /// Use an icon from an icon pack
+    IconPack {
+        /// ID of the icon pack
+        pack_id: String,
+        /// Path to the icon file
+        path: String,
+    },
+
+    // Image at some remote URL
+    Url {
+        src: String,
+    },
+
+    /// User uploaded file
+    Uploaded {
+        /// Path to the uploaded file
+        path: String,
+    },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+pub struct TileLabel {
+    pub enabled: bool,
+    pub label: String,
+    pub align: LabelAlign,
+
+    pub font: String,
+    pub font_size: u32,
+
+    pub bold: bool,
+    pub italic: bool,
+    pub underline: bool,
+    pub outline: bool,
+
+    pub color: String,
+    pub outline_color: String,
+}
+
+impl Default for TileLabel {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            label: Default::default(),
+            align: Default::default(),
+            font: "Roboto".to_string(),
+            font_size: 10,
+            bold: false,
+            italic: false,
+            underline: false,
+            outline: true,
+            color: "#ffffff".to_string(),
+            outline_color: "#000000".to_string(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub enum LabelAlign {
+    #[default]
+    Bottom,
+    Middle,
+    Top,
+}
+
 /// Plugin message coming from the client side
 #[derive(Debug, Serialize)]
 #[serde(tag = "type")]
@@ -83,6 +163,12 @@ pub(crate) enum ClientPluginMessage {
         /// Whether to treat the properties update as a partial update
         partial: bool,
     },
+
+    /// Set the current icon for a tile
+    SetTileIcon { tile_id: TileId, icon: TileIcon },
+
+    /// Set the current label for a tile
+    SetTileLabel { tile_id: TileId, label: TileLabel },
 }
 
 /// Plugin message coming from the server side
