@@ -5,7 +5,7 @@ use plugin::Plugin;
 use protocol::ServerPluginMessage;
 use session::{PluginSessionHandle, PluginSessionRx};
 use subscription::Subscriptions;
-use tokio::spawn;
+use tokio::join;
 use tokio_tungstenite::{connect_async, tungstenite::client::IntoClientRequest};
 
 use tracing_subscriber::EnvFilter;
@@ -52,11 +52,6 @@ where
 
     // Create and spawn a future for the websocket
     let (ws_future, ws_rx, ws_tx) = WebSocketFuture::new(socket);
-    spawn(async move {
-        if let Err(cause) = ws_future.await {
-            tracing::error!(?cause, "error running device websocket future");
-        }
-    });
 
     // Create message subscriptions store
     let subscriptions = Subscriptions::default();
@@ -69,8 +64,30 @@ where
         .register(args.plugin_id)
         .expect("failed to register plugin");
 
-    let mut msg_rx = PluginSessionRx::new(ws_rx);
+    let msg_rx = PluginSessionRx::new(ws_rx);
 
+    let socket_future = run_websocket(ws_future);
+    let handle_future = run_handler(plugin, handle, subscriptions, msg_rx);
+
+    join!(socket_future, handle_future);
+}
+
+/// Helper to run the websocket and emit a log in the case of error
+async fn run_websocket(ws_future: WebSocketFuture) {
+    if let Err(cause) = ws_future.await {
+        tracing::error!(?cause, "error running device websocket future");
+    }
+}
+
+/// Handle all incoming messages from the websocket
+async fn run_handler<P>(
+    plugin: P,
+    handle: PluginSessionHandle,
+    subscriptions: Subscriptions,
+    mut msg_rx: PluginSessionRx,
+) where
+    P: Plugin,
+{
     while let Some(msg) = msg_rx.next().await {
         let msg = match msg {
             Ok(value) => value,

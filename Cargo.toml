@@ -10,7 +10,7 @@ description = "Plugin SDK for writing Tilepad plugins"
 
 [dependencies]
 # Async 
-tokio = { version = "1", features = ["rt", "net", "sync"] }
+tokio = { version = "1", features = ["macros", "net", "sync"] }
 futures-util = "0.3"
 
 # Websocket
