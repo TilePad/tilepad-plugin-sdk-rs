@@ -8,6 +8,7 @@ use subscription::Subscriptions;
 use tokio::spawn;
 use tokio_tungstenite::{connect_async, tungstenite::client::IntoClientRequest};
 
+use tracing_subscriber::EnvFilter;
 use ws::WebSocketFuture;
 
 // Provide tracing modules to the implementor
@@ -137,4 +138,21 @@ where
     }
 
     subscriptions.clear();
+}
+
+pub fn setup_tracing() {
+    let filter = EnvFilter::from_default_env();
+    let subscriber = tracing_subscriber::fmt()
+        .compact()
+        .with_file(true)
+        .with_env_filter(filter)
+        .with_line_number(true)
+        .with_thread_ids(false)
+        .with_target(false)
+        .with_ansi(false)
+        .without_time()
+        .finish();
+
+    // use that subscriber to process traces emitted after this point
+    tracing::subscriber::set_global_default(subscriber).expect("failed to setup tracing");
 }
