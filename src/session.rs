@@ -165,7 +165,7 @@ impl PluginSessionHandle {
 
     /// Requests the current properties for a tile from tilepad waiting until
     /// the response is retrieved and returns that
-    pub async fn get_visible_tiles(&self, tile_id: TileId) -> Result<Vec<TileModel>, SessionError> {
+    pub async fn get_visible_tiles(&self) -> Result<Vec<TileModel>, SessionError> {
         let (tx, rx) = oneshot::channel();
 
         self.subscriptions.add(Subscriber::new(
@@ -173,7 +173,7 @@ impl PluginSessionHandle {
             tx,
         ));
 
-        self.request_tile_properties(tile_id)?;
+        self.request_visible_tiles()?;
 
         // Wait for the response message
         let msg = rx.await.map_err(|_| SessionError::Closed)?;
