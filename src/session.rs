@@ -8,7 +8,7 @@ use tokio::sync::oneshot;
 use crate::{
     protocol::{
         ClientPluginMessage, InspectorContext, PluginId, ServerPluginMessage, TileIcon, TileId,
-        TileLabel,
+        TileLabel, TileModel,
     },
     subscription::{Subscriber, Subscriptions},
     ws::{WsMessage, WsRx, WsTx},
@@ -151,6 +151,34 @@ impl PluginSessionHandle {
         let msg = rx.await.map_err(|_| SessionError::Closed)?;
         let msg = match msg {
             ServerPluginMessage::TileProperties { properties, .. } => properties,
+            _ => return Err(SessionError::UnexpectedMessage),
+        };
+
+        Ok(msg)
+    }
+
+    /// Requests the list of currently visible tiles that belong to this plugin
+    pub fn request_visible_tiles(&self) -> Result<(), SessionError> {
+        self.send_message(ClientPluginMessage::GetVisibleTiles)?;
+        Ok(())
+    }
+
+    /// Requests the current properties for a tile from tilepad waiting until
+    /// the response is retrieved and returns that
+    pub async fn get_visible_tiles(&self, tile_id: TileId) -> Result<Vec<TileModel>, SessionError> {
+        let (tx, rx) = oneshot::channel();
+
+        self.subscriptions.add(Subscriber::new(
+            move |msg| matches!(msg, ServerPluginMessage::VisibleTiles { .. }),
+            tx,
+        ));
+
+        self.request_tile_properties(tile_id)?;
+
+        // Wait for the response message
+        let msg = rx.await.map_err(|_| SessionError::Closed)?;
+        let msg = match msg {
+            ServerPluginMessage::VisibleTiles { tiles } => tiles,
             _ => return Err(SessionError::UnexpectedMessage),
         };
 

@@ -1,6 +1,6 @@
 use crate::{
     inspector::Inspector,
-    protocol::{DeepLinkContext, TileId, TileInteractionContext},
+    protocol::{DeepLinkContext, DeviceId, TileId, TileInteractionContext, TileModel},
     session::PluginSessionHandle,
 };
 
@@ -24,7 +24,7 @@ pub trait Plugin {
     fn on_properties(&mut self, session: &PluginSessionHandle, properties: serde_json::Value) {}
 
     /// Invoked when a tiles properties are received from Tilepad,
-    /// this will occur when the plugin calls `session.request_tile_properties` or `session.get_tile_properties`
+    /// this will occur when the plugin calls [PluginSessionHandle::request_tile_properties] or  [PluginSessionHandle::get_tile_properties]
     ///
     /// # Arguments
     /// * `session` - The current session
@@ -87,4 +87,25 @@ pub trait Plugin {
         properties: serde_json::Value,
     ) {
     }
+
+    /// Invoked when the visible tiles on a device change
+    ///
+    /// # Arguments
+    /// * `session`   - The current session
+    /// * `device_id` - ID of the device the tiles are for
+    /// * `tiles`     - The current tiles of the device
+    fn on_device_tiles(
+        &mut self,
+        session: &PluginSessionHandle,
+        device_id: DeviceId,
+        tiles: Vec<TileModel>,
+    ) {
+    }
+    /// Invoked when the list of visible tiles is received
+    /// this will occur when the plugin calls [PluginSessionHandle::request_tile_properties] or  [PluginSessionHandle::get_tile_properties]
+    ///
+    /// # Arguments
+    /// * `session`   - The current session
+    /// * `tiles`     - The current tiles of the device
+    fn on_visible_tiles(&mut self, session: &PluginSessionHandle, tiles: Vec<TileModel>) {}
 }

@@ -151,6 +151,14 @@ async fn run_handler<P>(
             } => {
                 plugin.on_tile_properties(&handle, tile_id, properties);
             }
+
+            ServerPluginMessage::DeviceTiles { device_id, tiles } => {
+                plugin.on_device_tiles(&handle, device_id, tiles);
+            }
+
+            ServerPluginMessage::VisibleTiles { tiles } => {
+                plugin.on_visible_tiles(&handle, tiles);
+            }
         }
     }
 
