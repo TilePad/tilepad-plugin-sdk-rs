@@ -1,4 +1,5 @@
 use clap::Parser;
+use display::Display;
 use futures_util::StreamExt;
 use inspector::Inspector;
 use plugin::Plugin;
@@ -15,6 +16,7 @@ use ws::WebSocketFuture;
 pub use tracing;
 pub use tracing_subscriber;
 
+pub mod display;
 pub mod inspector;
 pub mod plugin;
 pub mod protocol;
@@ -118,6 +120,16 @@ async fn run_handler<P>(
                 plugin.on_inspector_message(
                     &handle,
                     Inspector {
+                        ctx,
+                        session: handle.clone(),
+                    },
+                    message,
+                );
+            }
+            ServerPluginMessage::RecvFromDisplay { ctx, message } => {
+                plugin.on_display_message(
+                    &handle,
+                    Display {
                         ctx,
                         session: handle.clone(),
                     },

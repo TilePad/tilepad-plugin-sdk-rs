@@ -22,6 +22,14 @@ pub struct InspectorContext {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DisplayContext {
+    pub device_id: DeviceId,
+    pub plugin_id: PluginId,
+    pub action_id: ActionId,
+    pub tile_id: TileId,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TileInteractionContext {
     pub device_id: DeviceId,
 
@@ -172,6 +180,14 @@ pub(crate) enum ClientPluginMessage {
         message: serde_json::Value,
     },
 
+    /// Send data to a specific display
+    SendToDisplay {
+        /// Inspector context
+        ctx: DisplayContext,
+        /// Message to send the display
+        message: serde_json::Value,
+    },
+
     /// Open a URL
     OpenUrl { url: String },
 
@@ -223,6 +239,12 @@ pub(crate) enum ServerPluginMessage {
     /// Got a message from the inspector
     RecvFromInspector {
         ctx: InspectorContext,
+        message: serde_json::Value,
+    },
+
+    /// Got a message from a display
+    RecvFromDisplay {
+        ctx: DisplayContext,
         message: serde_json::Value,
     },
 

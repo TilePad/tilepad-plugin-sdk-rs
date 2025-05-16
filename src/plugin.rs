@@ -1,4 +1,5 @@
 use crate::{
+    display::Display,
     inspector::Inspector,
     protocol::{DeepLinkContext, DeviceId, TileId, TileInteractionContext, TileModel},
     session::PluginSessionHandle,
@@ -42,9 +43,9 @@ pub trait Plugin {
     /// this message structure is defined by the developer   
     ///
     /// # Arguments
-    /// * `session` - The current session
-    /// * `ctx`     - Contextual information about the inspector (Which tile is selected, which folder, which profile etc)
-    /// * `message` - The message sent from the inspector
+    /// * `session`  - The current session
+    /// * `inspector - Inspector to send messages back
+    /// * `message`  - The message sent from the inspector
     fn on_inspector_message(
         &mut self,
         session: &PluginSessionHandle,
@@ -52,19 +53,33 @@ pub trait Plugin {
         message: serde_json::Value,
     ) {
     }
+    /// Invoked when the plugin receives a message from a display,
+    /// this message structure is defined by the developer   
+    ///
+    /// # Arguments
+    /// * `session` - The current session
+    /// * `display` - Display to send messages back
+    /// * `message` - The message sent from the inspector
+    fn on_display_message(
+        &mut self,
+        session: &PluginSessionHandle,
+        display: Display,
+        message: serde_json::Value,
+    ) {
+    }
 
     /// Invoked when the inspector is opened for a tile
     ///
     /// # Arguments
-    /// * `session` - The current session
-    /// * `ctx`     - Contextual information about the inspector (Which tile is selected, which folder, which profile etc)
+    /// * `session`  - The current session
+    /// * `inspector - Inspector to send messages back
     fn on_inspector_open(&mut self, session: &PluginSessionHandle, inspector: Inspector) {}
 
     /// Invoked when the inspector is closed for a tile
     ///
     /// # Arguments
-    /// * `session` - The current session
-    /// * `ctx`     - Contextual information about the inspector (Which tile is selected, which folder, which profile etc)
+    /// * `session`  - The current session
+    /// * `inspector - Inspector to send messages back
     fn on_inspector_close(&mut self, session: &PluginSessionHandle, inspector: Inspector) {}
 
     /// Invoked when a deep link is received for the plugin
