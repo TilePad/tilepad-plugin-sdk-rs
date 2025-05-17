@@ -1,10 +1,31 @@
+//! # Tilepad SDK
+//!
+//! ```no_run
+//! use tilepad_plugin_sdk::{Plugin, PluginSessionHandle, start_plugin, setup_tracing};
+//! use tokio::task::LocalSet;
+//!
+//! #[derive(Default)]
+//! struct MyPlugin {}
+//!
+//! impl Plugin for MyPlugin {
+//!     // TODO: Implement your desired methods
+//! }
+//!
+//! #[tokio::main(flavor = "current_thread")]
+//! async fn main() {
+//!     setup_tracing();
+//!
+//!     let local_set = LocalSet::new();
+//!     let plugin = MyPlugin::default();
+//!
+//!     local_set.run_until(start_plugin(plugin)).await;
+//! }
+//! ```
+
 use clap::Parser;
-use display::Display;
 use futures_util::StreamExt;
-use inspector::Inspector;
-use plugin::Plugin;
 use protocol::ServerPluginMessage;
-use session::{PluginSessionHandle, PluginSessionRx};
+use session::PluginSessionRx;
 use subscription::Subscriptions;
 use tokio::join;
 use tokio_tungstenite::{connect_async, tungstenite::client::IntoClientRequest};
@@ -16,11 +37,18 @@ use ws::WebSocketFuture;
 pub use tracing;
 pub use tracing_subscriber;
 
-pub mod display;
-pub mod inspector;
-pub mod plugin;
-pub mod protocol;
-pub mod session;
+// Module re-exports
+pub use display::Display;
+pub use inspector::Inspector;
+pub use plugin::Plugin;
+pub use protocol::*;
+pub use session::{PluginSessionHandle, SessionError};
+
+mod display;
+mod inspector;
+mod plugin;
+mod protocol;
+mod session;
 mod subscription;
 mod ws;
 
