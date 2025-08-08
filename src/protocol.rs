@@ -10,7 +10,7 @@ pub type DeviceId = Uuid;
 pub type TileId = Uuid;
 pub type JsonObject = serde_json::Map<String, serde_json::Value>;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct InspectorContext {
     pub profile_id: ProfileId,
     pub folder_id: FolderId,
@@ -21,7 +21,7 @@ pub struct InspectorContext {
     pub tile_id: TileId,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct DisplayContext {
     pub device_id: DeviceId,
     pub plugin_id: PluginId,
@@ -29,7 +29,7 @@ pub struct DisplayContext {
     pub tile_id: TileId,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct TileInteractionContext {
     pub device_id: DeviceId,
 
@@ -86,7 +86,7 @@ pub struct TileIconOptions {
     pub border_color: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct TilePosition {
     /// Row within the UI to display at
     pub row: u32,
@@ -146,7 +146,7 @@ pub struct TileLabel {
     pub outline_color: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub enum LabelAlign {
     #[default]
     Bottom,
