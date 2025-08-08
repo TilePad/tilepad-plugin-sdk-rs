@@ -117,10 +117,10 @@ pub trait Plugin {
     ) {
     }
     /// Invoked when the list of visible tiles is received
-    /// this will occur when the plugin calls [PluginSessionHandle::request_tile_properties] or  [PluginSessionHandle::get_tile_properties]
+    /// this will occur when the plugin calls [PluginSessionHandle::request_visible_tiles] or [PluginSessionHandle::get_visible_tiles]
     ///
     /// # Arguments
     /// * `session`   - The current session
-    /// * `tiles`     - The current tiles of the device
+    /// * `tiles`     - The current visible tiles
     fn on_visible_tiles(&mut self, session: &PluginSessionHandle, tiles: Vec<TileModel>) {}
 }
