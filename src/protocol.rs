@@ -295,4 +295,7 @@ pub enum DeviceIndicator {
     Error,
     Success,
     Warning,
+    Loading,
+    /// Clear the active indicator
+    None,
 }
