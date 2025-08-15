@@ -6,6 +6,7 @@ use thiserror::Error;
 use tokio::sync::oneshot;
 
 use crate::{
+    DeviceId, DeviceIndicator,
     protocol::{
         ClientPluginMessage, InspectorContext, PluginId, ServerPluginMessage, TileIcon, TileId,
         TileLabel, TileModel,
@@ -183,6 +184,26 @@ impl PluginSessionHandle {
         };
 
         Ok(msg)
+    }
+
+    /// Display an indicator on a specific tile on the device
+    ///
+    /// Will display the indicator on `device_id` on the specific `tile_id`
+    /// it will display an indicator of style `indicator` for `duration`
+    /// milliseconds
+    pub fn display_indicator(
+        &self,
+        device_id: DeviceId,
+        tile_id: TileId,
+        indicator: DeviceIndicator,
+        duration: u32,
+    ) -> Result<(), SessionError> {
+        self.send_message(ClientPluginMessage::DisplayIndicator {
+            device_id,
+            tile_id,
+            indicator,
+            duration,
+        })
     }
 
     /// Sets the properties for the specified tile

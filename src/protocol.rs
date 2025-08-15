@@ -215,6 +215,19 @@ pub(crate) enum ClientPluginMessage {
 
     /// Get all currently visible tiles
     GetVisibleTiles,
+
+    /// Display an icon on connected devices
+    DisplayIndicator {
+        /// ID of the device to display on
+        device_id: Uuid,
+        /// ID of the tile to display it on
+        tile_id: Uuid,
+        /// Indicator to display
+        indicator: DeviceIndicator,
+        /// Duration in milliseconds to display the
+        /// indicator for
+        duration: u32,
+    },
 }
 
 /// Plugin message coming from the server side
@@ -275,4 +288,11 @@ pub(crate) enum ServerPluginMessage {
         /// Tiles that are currently visible
         tiles: Vec<TileModel>,
     },
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum DeviceIndicator {
+    Error,
+    Success,
+    Warning,
 }
