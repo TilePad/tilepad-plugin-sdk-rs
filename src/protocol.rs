@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 pub type PluginId = String;
+pub type IconPackId = String;
 pub type ActionId = String;
 
 pub type ProfileId = Uuid;
@@ -116,7 +117,7 @@ pub enum TileIcon {
     /// Use an icon from an icon pack
     IconPack {
         /// ID of the icon pack
-        pack_id: String,
+        pack_id: IconPackId,
         /// Path to the icon file
         path: String,
     },
@@ -125,6 +126,21 @@ pub enum TileIcon {
     Url {
         src: String,
     },
+
+    /// User uploaded file
+    Uploaded {
+        /// Path to the uploaded file
+        path: String,
+    },
+
+    /// Embed a HTML display as the tile icon
+    Display {
+        /// Path the display HTML file
+        path: String,
+    },
+
+    #[serde(other)]
+    Unknown,
 }
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
@@ -152,6 +168,9 @@ pub enum LabelAlign {
     Bottom,
     Middle,
     Top,
+
+    #[serde(other)]
+    Unknown,
 }
 
 /// Plugin message coming from the client side
@@ -298,4 +317,7 @@ pub enum DeviceIndicator {
     Loading,
     /// Clear the active indicator
     None,
+
+    #[serde(other)]
+    Unknown,
 }
